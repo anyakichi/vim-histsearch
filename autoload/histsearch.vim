@@ -18,10 +18,12 @@ function! histsearch#complete(findstart, base)
 	let res = copy(b:histsearch_history)
 	let base = a:base
 	let base = substitute(base, '^\V' . g:histsearch_prefix , '', '')
-	let base = substitute(base, '*', '.*', 'g')
-	let base = substitute(base, '?', '.', 'g')
-	let base = escape(base, '"')
-	call filter(res, 'v:val =~? "' . base . '"')
+	let base = escape(base, '"\')
+	try
+	    call filter(res, 'v:val =~? "' . base . '"')
+	catch
+	    let res = []
+	endtry
 	let b:histsearch_empty = empty(res)
 	return res
     endif
@@ -40,7 +42,12 @@ function! histsearch#setup()
 	inoremap <buffer> <expr> <C-k> pumvisible() ? "\<Up>" :
 	\					      histsearch#start()
 	inoremap <buffer> <expr> <C-e> histsearch#end("\<C-e>")
+	inoremap <buffer> <expr> * histsearch#is_active() ? ".*" : "*"
     endif
+endfunction
+
+function! histsearch#is_active()
+    return getline('.') =~# '^\V' . g:histsearch_prefix
 endfunction
 
 function! histsearch#start0()
@@ -59,9 +66,7 @@ function! histsearch#end0()
 endfunction
 
 function! histsearch#end(fallback)
-    let curline = getline('.')
-
-    if curline =~# '^\V' . g:histsearch_prefix
+    if histsearch#is_active()
 	let end = pumvisible() ? "\<C-e>" : ""
 	return end . histsearch#end0()
     endif
@@ -70,9 +75,7 @@ function! histsearch#end(fallback)
 endfunction
 
 function! histsearch#enter(fallback)
-    let curline = getline('.')
-
-    if curline =~# '^\V' . g:histsearch_prefix
+    if histsearch#is_active()
 	if pumvisible()
 	    return "\<C-y>\<CR>"
 	endif
