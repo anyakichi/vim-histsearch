@@ -11,8 +11,9 @@ function! histsearch#complete(findstart, base)
 	return 0
     else
 	if !exists('b:histsearch_history')
-	    call histdel(b:histsearch_mode, '^\V' . g:histsearch_prefix)
-	    let b:histsearch_history = histsearch#history(b:histsearch_mode)
+	    let list = getline(1, line('.') - 1)
+	    call filter(list, "v:val !~# '^\\V" . g:histsearch_prefix . "'")
+	    let b:histsearch_history = list
 	endif
 	let res = copy(b:histsearch_history)
 	let base = a:base
@@ -91,21 +92,6 @@ function! histsearch#feedkeys()
     elseif curline ==# g:histsearch_prefix[:-2]
 	call feedkeys("\<End>\<C-u>")
     endif
-endfunction
-
-function! histsearch#history(type)
-    let histlist = []
-    let histdic = {}
-
-    for i in range(histnr(a:type), 1, -1)
-	let item = histget(a:type, i)
-
-	if item != "" && !has_key(histdic, item)
-	    let histdic[item] = 1
-	    call insert(histlist, item)
-	endif
-    endfor
-    return histlist
 endfunction
 
 let &cpo = s:cpo_save
