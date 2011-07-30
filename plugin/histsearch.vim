@@ -13,7 +13,7 @@ set cpo&vim
 
 augroup HistSearch
     autocmd!
-    autocmd CmdWinEnter [:/\?] call histsearch#setup(expand('<afile>'))
+    autocmd CmdWinEnter [:/\?] call histsearch#setup()
 augroup END
 
 nnoremap <script> <expr> <Plug>(histsearch-command)

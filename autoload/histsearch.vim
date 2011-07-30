@@ -27,9 +27,8 @@ function! histsearch#complete(findstart, base)
     endif
 endfun
 
-function! histsearch#setup(mode)
+function! histsearch#setup()
     setlocal completefunc=histsearch#complete
-    let b:histsearch_mode = a:mode == '?' ? '/' : a:mode
 
     autocmd! HistSearch * <buffer>
     autocmd HistSearch CursorMovedI <buffer> call histsearch#feedkeys()
