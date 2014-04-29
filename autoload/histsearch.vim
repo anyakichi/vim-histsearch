@@ -36,7 +36,8 @@ function! histsearch#setup()
     autocmd HistSearch CursorMovedI <buffer> call histsearch#feedkeys()
 
     if !exists('g:histsearch_no_mappings') || !g:histsearch_no_mappings
-	nnoremap <silent> <buffer> <Esc><Esc> :<C-u>quit<CR>
+	inoremap <buffer> <expr> <Esc> histsearch#cancel("\<Esc>")
+	inoremap <buffer> <expr> <C-c> histsearch#cancel("\<C-c>")
 	inoremap <buffer> <expr> <CR>  histsearch#enter("\<CR>")
 	inoremap <buffer> <expr> <C-j> pumvisible() ? "\<Down>" : "\<C-j>"
 	inoremap <buffer> <expr> <C-k> pumvisible() ? "\<Up>" :
@@ -80,6 +81,17 @@ function! histsearch#enter(fallback)
 	    return "\<C-y>\<CR>"
 	endif
 	return histsearch#end0() . "\<CR>"
+    endif
+
+    return a:fallback
+endfunction
+
+function! histsearch#cancel(fallback)
+    if histsearch#is_active()
+	if pumvisible()
+	    return "\<C-e>\<C-u>\<CR>"
+	endif
+	return "\<C-u>\<CR>"
     endif
 
     return a:fallback
